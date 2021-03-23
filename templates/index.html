@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tasks</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/20dc7d40fe.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <style>
+        ul {
+            list-style-type: none;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mt-4">Tasks</h1>
+                <ul>
+                    <li class="row my-3" v-for="(task, index) in tasks" :key="index">
+                        <div class="form-check col-md-8 col-lg-4">
+                            <input class="form-check-input" type="checkbox"
+                                   :checked="task.completed"
+                                   :id="'task_' + index"
+                                   @change="completeTask(task)">
+                            <label class="form-check-label" :for="'task_' + index" v-text="task.name"></label>
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-outline-danger btn-sm" @click="deleteTask(index)"><i
+                                    class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row" v-if="!addTaskForm">
+            <h6 style="cursor: pointer" @click="addTaskForm = true">
+                <i class="fas fa-plus"></i> Add Task
+            </h6>
+        </div>
+        <div class="row" v-if="addTaskForm">
+            <div class="col-auto">
+                <label class="visually-hidden" for="addTask">Add Task</label>
+                <input class="form-control" v-model="newTask" name="newTask" id="addTask" autocomplete="off">
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-outline-success" @click="addTask()">
+                    <i class="fas fa-check"></i> Save
+                </button>
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-outline-danger" @click="addTaskForm = false">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+        crossorigin="anonymous"></script>
+<script>
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            tasks: [],
+            newTask: null,
+            addTaskForm: false
+        },
+        mounted() {
+            this.getTasks();
+        },
+        methods: {
+            getTasks() {
+                axios.get('/api/tasks/')
+                    .then((response) => {
+                        console.log(response);
+                        this.tasks = response.data;
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        alert('Something went wrong');
+                    })
+            },
+            addTask() {
+                axios.post('/api/tasks/', {'name': this.newTask})
+                    .then((response) => {
+                        console.log(response);
+                        this.tasks.push(response.data);
+                        this.newTask = null;
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        alert('Something went wrong');
+                    })
+            },
+            completeTask(task) {
+                axios.patch('/api/tasks/' + task['id'] + '/', {'completed': !task.completed})
+                    .then((response) => {
+                        console.log(response);
+                        task.completed = response.data['completed'];
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        alert('Something went wrong');
+                    })
+
+            },
+            deleteTask(index) {
+                axios.delete('/api/tasks/' + this.tasks[index]['id'] + '/')
+                    .then((response) => {
+                        console.log(response);
+                        this.getTasks();
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        alert('Something went wrong');
+                    })
+            }
+        },
+    })
+</script>
+</body>
+</html>
