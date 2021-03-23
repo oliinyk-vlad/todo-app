@@ -3,7 +3,7 @@ To Do list
 
 ### Running the app on local computer
 
-Start the Cloud SQL Proxy
+Start the [Cloud SQL Proxy](https://cloud.google.com/python/django/appengine#installingthecloudsqlproxy)
 
 ```
 ./cloud_sql_proxy -instances="[INSTANCE_CONNECTION_NAME]"=tcp:3306
