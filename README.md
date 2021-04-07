@@ -19,7 +19,3 @@ Start a local web server
 ```
 python manage.py runserver
 ```
-
-Deployed on https://todo-app-308514.ey.r.appspot.com/
-
-
